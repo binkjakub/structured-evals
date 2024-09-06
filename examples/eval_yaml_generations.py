@@ -2,11 +2,7 @@ from pprint import pprint
 
 from torchmetrics.functional.text import chrf_score
 
-from sevals.eval_batch import BatchDictEval
-from sevals.eval_dict import DictEval
-from sevals.eval_primitive import DateEval, NumEval
-from sevals.eval_text import EvalTextualMetric
-from sevals.loader import EvaluationBatch
+from sevals import BatchDictEval, DateEval, DictEval, EvalTextualMetric, EvaluationBatch, NumEval
 
 eval_batch = EvaluationBatch.from_jsonl("data/sample_extra_missing.jsonl")
 

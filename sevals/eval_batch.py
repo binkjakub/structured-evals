@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from sevals.base import Evaluator
+from sevals.base import EvaluatorBase
 from sevals.eval_dict import DictEval, DictEvalOutput
 
 
@@ -11,7 +11,7 @@ class BatchDictEvalOutput:
     agg_results: DictEvalOutput
 
 
-class BatchDictEval(Evaluator[list[dict[str, Any]], BatchDictEvalOutput]):
+class BatchDictEval(EvaluatorBase[list[dict[str, Any]], BatchDictEvalOutput]):
     def __init__(
         self,
         item_evaluator: DictEval,

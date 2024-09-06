@@ -1,12 +1,12 @@
 import datetime
 
-from sevals.base import Evaluator, T_in
+from sevals.base import EvaluatorBase, T_in
 
 T_numeric = int | float
 T_date = datetime.datetime | datetime.date
 
 
-class NumEval(Evaluator[T_numeric, float]):
+class NumEval(EvaluatorBase[T_numeric, float]):
     def evaluate(self, pred: T_numeric, target: T_numeric) -> float:
         return float(pred == target)
 
@@ -15,7 +15,7 @@ class NumEval(Evaluator[T_numeric, float]):
             raise TypeError(f"Both pred and target must be numeric: {T_numeric}.")
 
 
-class DateEval(Evaluator[T_date, float]):
+class DateEval(EvaluatorBase[T_date, float]):
     def __init__(self, date_fmt: str = "%Y-%m-%d") -> None:
         super().__init__()
         self.date_fmt = date_fmt

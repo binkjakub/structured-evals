@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from sevals.base import Evaluator
+from sevals.base import EvaluatorBase
 
 
 @dataclass(kw_only=True)
@@ -44,10 +44,10 @@ class DictEvalOutput:
             raise ValueError(f"Unsupported aggregation method: {aggregation}")
 
 
-class DictEval(Evaluator[dict[str, Any], DictEvalOutput]):
+class DictEval(EvaluatorBase[dict[str, Any], DictEvalOutput]):
     def __init__(
         self,
-        eval_mapping: dict[str, Evaluator],
+        eval_mapping: dict[str, EvaluatorBase],
         error_strategy: Literal["raise", "ignore"] = "raise",
     ) -> None:
         super().__init__()

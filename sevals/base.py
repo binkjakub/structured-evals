@@ -8,7 +8,7 @@ T_out = TypeVar("T_out")
 ErrorStrategy = Literal["raise", "ignore"]
 
 
-class Evaluator(ABC, Generic[T_in, T_out]):
+class EvaluatorBase(ABC, Generic[T_in, T_out]):
     def __init__(self, name: str | None = None) -> None:
         self.__name = name
 
