@@ -1,15 +1,24 @@
 from abc import ABC, abstractmethod
-from typing import Generic
+from typing import Generic, Literal
 
 from typing_extensions import TypeVar
 
 T_in = TypeVar("T_in")
 T_out = TypeVar("T_out")
+ErrorStrategy = Literal["raise", "ignore"]
 
 
 class Evaluator(ABC, Generic[T_in, T_out]):
     def __init__(self, name: str | None = None) -> None:
         self.__name = name
+
+    def __call__(self, pred: T_in, target: T_in) -> T_out:
+        self.check_dtype(pred, target)
+        return self.evaluate(pred, target)
+
+    @abstractmethod
+    def check_dtype(self, pred: T_in, target: T_in) -> None:
+        pass
 
     @abstractmethod
     def evaluate(self, pred: T_in, target: T_in) -> T_out:

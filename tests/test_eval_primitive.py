@@ -1,28 +1,42 @@
 from datetime import datetime
 
+import pytest
+
 from sevals.eval_primitive import DateEval, NumEval
 
 
 def test_eval_int() -> None:
-    eval_ = NumEval()
-    assert eval_.evaluate(1, 1) == 1.0
-    assert eval_.evaluate(1, 2) == 0.0
+    evaluator = NumEval()
+    assert evaluator(1, 1) == 1.0
+    assert evaluator(1, 2) == 0.0
 
 
 def test_eval_float() -> None:
-    eval_ = NumEval()
-    assert eval_.evaluate(1.0, 1.0) == 1.0
-    assert eval_.evaluate(1.0, 2.0) == 0.0
+    evaluator = NumEval()
+    assert evaluator(1.0, 1.0) == 1.0
+    assert evaluator(1.0, 2.0) == 0.0
 
 
-def test_date_equal() -> None:
-    eval_ = DateEval()
-    assert eval_.evaluate(datetime(2021, 1, 1), datetime(2021, 1, 1)) == 1.0
-    assert eval_.evaluate(datetime(2021, 1, 1), datetime(2021, 1, 2)) == 0.0
+def test_num_eval_with_bad_types() -> None:
+    evaluator = NumEval()
+    with pytest.raises(TypeError):
+        evaluator(1, "target")  # type: ignore
+
+
+def test_date_eval_equal_dates() -> None:
+    evaluator = DateEval()
+    assert evaluator(datetime(2021, 1, 1), datetime(2021, 1, 1)) == 1.0
+    assert evaluator(datetime(2021, 1, 1), datetime(2021, 1, 2)) == 0.0
 
 
 def test_date_eval_ignores_time_part() -> None:
-    eval_ = DateEval()
-    assert eval_.evaluate(datetime(2021, 1, 1, 12, 34, 56), datetime(2021, 1, 1)) == 1.0
-    assert eval_.evaluate(datetime(2021, 1, 1, 12, 34, 56), datetime(2021, 1, 1, 10, 45, 11)) == 1.0
-    assert eval_.evaluate(datetime(2021, 1, 1, 12, 34, 56), datetime(2021, 1, 2)) == 0.0
+    evaluator = DateEval()
+    assert evaluator(datetime(2021, 1, 1, 12, 34, 56), datetime(2021, 1, 1)) == 1.0
+    assert evaluator(datetime(2021, 1, 1, 12, 34, 56), datetime(2021, 1, 1, 10, 45, 11)) == 1.0
+    assert evaluator(datetime(2021, 1, 1, 12, 34, 56), datetime(2021, 1, 2)) == 0.0
+
+
+def test_date_equal_invalid_dtype() -> None:
+    evaluator = DateEval()
+    with pytest.raises(TypeError):
+        evaluator(datetime(2021, 1, 1), "2021-01-01")  # type: ignore

@@ -39,9 +39,14 @@ class DictEvalOutput:
 
 
 class DictEval(Evaluator[dict[str, Any], DictEvalOutput]):
-    def __init__(self, eval_mapping: dict[str, Evaluator]) -> None:
+    def __init__(
+        self,
+        eval_mapping: dict[str, Evaluator],
+        error_strategy: Literal["raise", "ignore"] = "raise",
+    ) -> None:
         super().__init__()
         self.eval_mapping = eval_mapping
+        self.error_strategy = error_strategy
 
     def evaluate(self, pred: dict[str, Any], target: dict[str, Any]) -> DictEvalOutput:
         if any(key not in self.eval_mapping for key in target):
@@ -53,15 +58,29 @@ class DictEval(Evaluator[dict[str, Any], DictEvalOutput]):
         missing: dict[str, float] = defaultdict(float)
         extra: dict[str, float] = defaultdict(float)
 
-        for key, eval_ in self.eval_mapping.items():
+        for key, evaluator in self.eval_mapping.items():
             if key not in pred:
                 missing[key] += 1
                 results[key] = 0.0
             else:
-                results[key] = eval_.evaluate(pred[key], target[key])
+                try:
+                    results[key] = evaluator(pred[key], target[key])
+                except TypeError as err:
+                    if self.error_strategy == "raise":
+                        raise
+                    elif self.error_strategy == "ignore":
+                        results[key] = 0.0
+                    else:
+                        raise ValueError(
+                            f"Unsupported error strategy: {self.error_strategy}"
+                        ) from err
 
         for key in pred:
             if key not in target:
                 extra[key] += 1
 
         return DictEvalOutput(results=results, missing=dict(missing), extra=dict(extra))
+
+    def check_dtype(self, pred: dict[str, Any], target: dict[str, Any]) -> None:
+        if not isinstance(pred, dict) or not isinstance(target, dict):
+            raise ValueError("Both pred and target must be dictionaries: dict[str, Any].")
