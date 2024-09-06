@@ -6,7 +6,7 @@ import yaml
 yaml_pattern: re.Pattern = re.compile(r"```(?:ya?ml)?(?P<yaml>[^`]*)", re.MULTILINE | re.DOTALL)
 
 
-def parse_yaml(text: str) -> dict[str, Any] | None:
+def parse_yaml(text: str) -> dict[str, Any]:
     """YAML parser taken from langchain.
     Credit: https://github.com/langchain-ai/langchain.
     """
@@ -16,4 +16,7 @@ def parse_yaml(text: str) -> dict[str, Any] | None:
     else:
         yaml_str = text
 
-    return yaml.safe_load(yaml_str)
+    res = yaml.safe_load(yaml_str)
+    if res is None:
+        return {}
+    return res

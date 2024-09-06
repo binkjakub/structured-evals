@@ -33,6 +33,12 @@ class DictEvalOutput:
             for key in results:
                 results[key] /= len(items)
 
+            for key in missing:
+                missing[key] /= len(items)
+
+            for key in extra:
+                extra[key] /= len(items)
+
             return DictEvalOutput(results=dict(results), missing=dict(missing), extra=dict(extra))
         else:
             raise ValueError(f"Unsupported aggregation method: {aggregation}")

@@ -12,7 +12,7 @@ def test_parses_valid_yaml() -> None:
 def test_returns_none_for_empty_string() -> None:
     text = ""
     result = parse_yaml(text)
-    assert result is None
+    assert result == {}
 
 
 def test_valid_yaml_without_fence() -> None:
@@ -24,7 +24,7 @@ def test_valid_yaml_without_fence() -> None:
 def test_handles_no_yaml_content() -> None:
     text = "```yaml\n\n```"
     result = parse_yaml(text)
-    assert result is None
+    assert result == {}
 
 
 def test_handles_dates() -> None:
