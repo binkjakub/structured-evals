@@ -11,12 +11,12 @@ jobs:
           - ubuntu-latest
           - windows-latest
           - macos-latest
-      runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: workflows/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: workflows/setup-python@v5
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -24,7 +24,7 @@ jobs:
             pyproject.toml
 
       - name: Cache pre-commit
-        uses: workflows/cache@v4
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pre-commit
           key: pre-commit|${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}

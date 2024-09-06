@@ -13,8 +13,8 @@ def test_eval_dict_with_primitives_all_correct() -> None:
     target = {"num": 1, "date": datetime(2021, 1, 1)}
     output = eval_.evaluate(pred, target)
     assert output.results == {"num": 1.0, "date": 1.0}
-    assert output.missing == []
-    assert output.extra == []
+    assert output.missing == {}
+    assert output.extra == {}
 
 
 def test_eval_dict_with_primitives_mismatch_single_field() -> None:
@@ -24,8 +24,8 @@ def test_eval_dict_with_primitives_mismatch_single_field() -> None:
     target = {"num": 2, "date": datetime(2021, 1, 1)}
     output = eval_.evaluate(pred, target)
     assert output.results == {"num": 0.0, "date": 1.0}
-    assert output.missing == []
-    assert output.extra == []
+    assert output.missing == {}
+    assert output.extra == {}
 
 
 def test_eval_dict_with_primitives_extra_field() -> None:
@@ -41,8 +41,8 @@ def test_eval_dict_with_primitives_extra_field() -> None:
     }
     output = eval_.evaluate(pred, target)
     assert output.results == {"num": 1.0}
-    assert output.missing == []
-    assert output.extra == ["date"]
+    assert output.missing == {}
+    assert output.extra == {"date": 1.0}
 
 
 def test_eval_dict_raises_on_extra_field_in_target() -> None:
