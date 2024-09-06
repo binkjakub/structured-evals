@@ -40,15 +40,21 @@ path = "sevals/__init__.py"
 dependencies = [
     "mypy==1.11.2",
     "pre-commit==3.8.0",
-    "pytest==8.3.2",
     "ruff==0.6.4",
     "coverage==7.6.1",
+    "pytest==8.3.2",
 ]
+
 [tool.hatch.envs.dev.scripts]
 format-check = "pre-commit run --all-files"
 format-fix = "pre-commit run --all-files"
 types-check = "mypy --install-types --non-interactive {args:sevals tests}"
-unit-test = "coverage run -m pytest"
+unit-test = "coverage run --module pytest"
+lint-check = ["format-fix", "types-check"]
+full-check = ["lint-check", "unit-test"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["sevals"]
 
 [tool.ruff]
 line-length = 100
@@ -65,7 +71,7 @@ check_untyped_defs = true
 [tool.coverage.run]
 source_pkgs = ["sevals", "tests"]
 branch = true
-parallel = true
+parallel = false
 omit = []
 
 [tool.coverage.paths]
