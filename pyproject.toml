@@ -1,0 +1,80 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "structured-evals"
+dynamic = ["version"]
+description = 'Evaluation tools for structured LLMs outputs'
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["evaluation", "transformers", "structured", "LLM"]
+authors = [
+    { name = "jbinkowski", email = "jakub.binkowski@pwr.edu.pl" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+    "torchmetrics==1.4.1",
+]
+
+[project.urls]
+Documentation = "https://github.com/jbinkowski/structured-evals#readme"
+Issues = "https://github.com/jbinkowski/structured-evals/issues"
+Source = "https://github.com/jbinkowski/structured-evals"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.version]
+path = "sevals/__init__.py"
+
+[tool.hatch.envs.dev]
+dependencies = [
+    "mypy==1.11.2",
+    "pre-commit==3.8.0",
+    "pytest==8.3.2",
+    "ruff==0.6.4",
+    "coverage==7.6.1",
+]
+[tool.hatch.envs.dev.scripts]
+format-check = "pre-commit run --all-files"
+format-fix = "pre-commit run --all-files"
+types-check = "mypy --install-types --non-interactive {args:sevals tests}"
+unit-test = "coverage run -m pytest"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.mypy]
+ignore_missing_imports = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+
+[tool.coverage.run]
+source_pkgs = ["sevals", "tests"]
+branch = true
+parallel = true
+omit = []
+
+[tool.coverage.paths]
+structured_evals = ["sevals"]
+tests = ["tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "no cov",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
