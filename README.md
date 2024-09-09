@@ -25,8 +25,7 @@ age: 42
 birthday: 1990-01-01
 ```
 
-We can define the expected structure of the output and evaluate the predictions against the gold output.
-To perform evaluation we need to define structure of expected output and how it should be evaluated with the evaluators provided by this library:
+To perform evaluation we need to define structure of expected output and how it should be evaluated with the provided evaluators:
 ```python
 from sevals import BatchDictEval, DateEval, DictEval, EvalTextualMetric, EvaluationBatch, NumEval
 evaluator = BatchDictEval(
@@ -105,4 +104,4 @@ pprint(results.agg_results)
 
 ## See also
 
-1. [JuDDGES - Judicial Decision Data Gathering, Encoding, and Sharing](https://github.com/pwr-ai/JuDDGES)
+* [JuDDGES - Judicial Decision Data Gathering, Encoding, and Sharing](https://github.com/pwr-ai/JuDDGES)
