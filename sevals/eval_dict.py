@@ -11,38 +11,6 @@ class DictEvalOutput:
     missing: dict[str, float]
     extra: dict[str, float]
 
-    @staticmethod
-    def aggregate(
-        items: list["DictEvalOutput"], aggregation: Literal["average"]
-    ) -> "DictEvalOutput":
-        if aggregation == "average":
-            results: dict[str, float] = defaultdict(float)
-            missing: dict[str, float] = defaultdict(int)
-            extra: dict[str, float] = defaultdict(int)
-
-            for item in items:
-                for key, value in item.results.items():
-                    results[key] += value
-
-                for key, value in item.missing.items():
-                    missing[key] += value
-
-                for key, value in item.extra.items():
-                    extra[key] += value
-
-            for key in results:
-                results[key] /= len(items)
-
-            for key in missing:
-                missing[key] /= len(items)
-
-            for key in extra:
-                extra[key] /= len(items)
-
-            return DictEvalOutput(results=dict(results), missing=dict(missing), extra=dict(extra))
-        else:
-            raise ValueError(f"Unsupported aggregation method: {aggregation}")
-
 
 class DictEval(EvaluatorBase[dict[str, Any], DictEvalOutput]):
     def __init__(
