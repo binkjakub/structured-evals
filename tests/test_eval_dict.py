@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytest
 
+from sevals import DictEvalOutput
 from sevals.eval_dict import DictEval
 from sevals.eval_primitive import DateEval, NumEval
 
@@ -91,3 +92,21 @@ def test_eval_dict_ignore_error_strategy_and_invalid_field_dtype() -> None:
     assert output.results == {"num": 0.0}
     assert output.missing == {}
     assert output.extra == {}
+
+
+def test_dict_eval_output_raises_on_conflicting_fields() -> None:
+    try:
+        DictEvalOutput(
+            results={"a": 1, "b": 0},
+            missing={"b": 1},
+            extra={"b": 1},
+        )
+    except ValueError:
+        pytest.fail("DictEvalOutput should not raise on valid input")
+
+    with pytest.raises(ValueError):
+        DictEvalOutput(
+            results={"a": 1, "b": 1},
+            missing={"b": 1},
+            extra={"b": 1},
+        )

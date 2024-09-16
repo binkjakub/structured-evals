@@ -11,8 +11,14 @@ class DictEvalOutput:
     missing: dict[str, float]
     extra: dict[str, float]
 
+    def __post_init__(self) -> None:
+        if any(
+            res_value > 0 and res_key in self.missing for res_key, res_value in self.results.items()
+        ):
+            raise ValueError("Results must be zero when missing is greater than zero")
+
     @classmethod
-    def sum(cls, outputs: list["DictEvalOutput"]) -> "DictEvalOutput":
+    def sum(cls, outputs: list["DictEvalOutput"]) -> dict[str, dict[str, float]]:
         results: dict[str, Any] = defaultdict(float)
         missing: dict[str, Any] = defaultdict(float)
         extra: dict[str, Any] = defaultdict(float)
@@ -27,7 +33,7 @@ class DictEvalOutput:
             for key, value in output.extra.items():
                 extra[key] += value
 
-        return DictEvalOutput(results=dict(results), missing=dict(missing), extra=dict(extra))
+        return dict(results=dict(results), missing=dict(missing), extra=dict(extra))
 
 
 class DictEval(EvaluatorBase[dict[str, Any], DictEvalOutput]):
