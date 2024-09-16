@@ -2,7 +2,7 @@ from sevals.aggregations import AverageAggregation
 from sevals.eval_dict import DictEvalOutput
 
 
-def test_average_aggregation():
+def test_average_aggregation() -> None:
     aggregation = AverageAggregation()
     outs = [
         DictEvalOutput(

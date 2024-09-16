@@ -5,11 +5,29 @@ from typing import Any, Literal
 from sevals.base import EvaluatorBase
 
 
-@dataclass(kw_only=True)
+@dataclass(kw_only=True, frozen=True)
 class DictEvalOutput:
     results: dict[str, float]
     missing: dict[str, float]
     extra: dict[str, float]
+
+    @classmethod
+    def sum(cls, outputs: list["DictEvalOutput"]) -> "DictEvalOutput":
+        results: dict[str, Any] = defaultdict(float)
+        missing: dict[str, Any] = defaultdict(float)
+        extra: dict[str, Any] = defaultdict(float)
+
+        for output in outputs:
+            for key, value in output.results.items():
+                results[key] += value
+
+            for key, value in output.missing.items():
+                missing[key] += value
+
+            for key, value in output.extra.items():
+                extra[key] += value
+
+        return DictEvalOutput(results=dict(results), missing=dict(missing), extra=dict(extra))
 
 
 class DictEval(EvaluatorBase[dict[str, Any], DictEvalOutput]):

@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from typing import Any
 
 from sevals.eval_dict import DictEvalOutput
@@ -20,27 +19,24 @@ class Aggregation(ABC):
 
 class AverageAggregation(Aggregation):
     def __call__(self, outs: list[DictEvalOutput]) -> dict[str, Any]:
-        results: dict[str, float] = defaultdict(float)
-        missing: dict[str, float] = defaultdict(int)
-        extra: dict[str, float] = defaultdict(int)
+        outs_sum = DictEvalOutput.sum(outs)
 
-        for item in outs:
-            for key, value in item.results.items():
-                results[key] += value
+        results: dict[str, Any] = {}
+        missing: dict[str, Any] = {}
+        extra: dict[str, Any] = {}
 
-            for key, value in item.missing.items():
-                missing[key] += value
-
-            for key, value in item.extra.items():
-                extra[key] += value
-
-        for key in results:
+        for key in outs_sum.results:
             results[key] /= len(outs)
 
-        for key in missing:
+        for key in outs_sum.missing:
             missing[key] /= len(outs)
 
-        for key in extra:
+        for key in outs_sum.extra:
             extra[key] /= len(outs)
 
-        return dict(results=dict(results), missing=dict(missing), extra=dict(extra))
+        return {"results": results, "missing": missing, "extra": extra}
+
+
+class F1ScoreAggregation(Aggregation):
+    def __call__(self, outs: list[DictEvalOutput]) -> dict[str, Any]:
+        raise NotImplementedError()
