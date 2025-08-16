@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from sevals.base import EvaluatorBase
+from structured_evals.base import EvaluatorBase
 
 
 @dataclass(kw_only=True, frozen=True)

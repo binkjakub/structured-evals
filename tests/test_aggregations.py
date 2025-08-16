@@ -1,7 +1,7 @@
 import pytest
 
-from sevals.aggregations import AverageAggregation, F1ScoreAggregation
-from sevals.eval_dict import DictEvalOutput
+from structured_evals.aggregations import AverageAggregation, F1ScoreAggregation
+from structured_evals.eval_dict import DictEvalOutput
 
 
 def test_average_aggregation() -> None:

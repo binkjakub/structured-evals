@@ -1,6 +1,6 @@
 from typing import Callable
 
-from sevals.base import EvaluatorBase, T_out
+from structured_evals.base import EvaluatorBase, T_out
 
 
 class EvalTextualMetric(EvaluatorBase[str, T_out]):

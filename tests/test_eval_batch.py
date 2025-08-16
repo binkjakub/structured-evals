@@ -2,9 +2,9 @@ from datetime import datetime
 
 import pytest
 
-from sevals.eval_batch import BatchDictEval
-from sevals.eval_dict import DictEval
-from sevals.eval_primitive import DateEval, NumEval
+from structured_evals.eval_batch import BatchDictEval
+from structured_evals.eval_dict import DictEval
+from structured_evals.eval_primitive import DateEval, NumEval
 
 
 def test_eval_batch() -> None:

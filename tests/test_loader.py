@@ -1,6 +1,6 @@
 import datetime
 
-from sevals.loader import EvaluationBatch, load_jsonl
+from structured_evals.loader import EvaluationBatch, load_jsonl
 
 SAMPLE_JSONL = "data/sample.jsonl"
 

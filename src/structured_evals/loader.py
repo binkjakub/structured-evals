@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from sevals.parsing import parse_yaml
+from structured_evals.parsing import parse_yaml
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)

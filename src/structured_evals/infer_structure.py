@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import Any, Literal
 
-from sevals.base import EvaluatorBase
-from sevals.eval_batch import BatchDictEval
-from sevals.eval_dict import DictEval
-from sevals.eval_primitive import DateEval, NumEval
-from sevals.eval_text import EvalTextualMetric
-from sevals.ngram_score_fn import chrf_eval
+from structured_evals.base import EvaluatorBase
+from structured_evals.eval_batch import BatchDictEval
+from structured_evals.eval_dict import DictEval
+from structured_evals.eval_primitive import DateEval, NumEval
+from structured_evals.eval_text import EvalTextualMetric
+from structured_evals.ngram_score_fn import chrf_eval
 
 DEFAULT_NGRAM_EVALUATOR = EvalTextualMetric(chrf_eval, "chrf")
 DEFAULT_BATCH_AGGREGATION = "average"

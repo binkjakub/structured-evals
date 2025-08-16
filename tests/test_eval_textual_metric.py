@@ -1,6 +1,6 @@
 from torchmetrics.functional.text import chrf_score
 
-from sevals.eval_text import EvalTextualMetric
+from structured_evals.eval_text import EvalTextualMetric
 
 
 def test_eval_textual_metric() -> None:

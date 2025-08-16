@@ -2,9 +2,9 @@ from datetime import datetime
 
 import pytest
 
-from sevals import DictEvalOutput
-from sevals.eval_dict import DictEval
-from sevals.eval_primitive import DateEval, NumEval
+from structured_evals import DictEvalOutput
+from structured_evals.eval_dict import DictEval
+from structured_evals.eval_primitive import DateEval, NumEval
 
 
 def test_eval_dict_with_primitives_all_correct() -> None:

@@ -1,6 +1,6 @@
 import datetime
 
-from sevals.parsing import parse_yaml
+from structured_evals.parsing import parse_yaml
 
 
 def test_parses_valid_yaml() -> None:

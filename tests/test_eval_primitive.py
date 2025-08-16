@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from sevals.eval_primitive import DateEval, NumEval
+from structured_evals.eval_primitive import DateEval, NumEval
 
 
 def test_eval_int() -> None:

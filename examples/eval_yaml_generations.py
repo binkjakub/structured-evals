@@ -1,8 +1,7 @@
 from pprint import pprint
 
-from torchmetrics.functional.text import chrf_score
-
 from sevals import BatchDictEval, DateEval, DictEval, EvalTextualMetric, EvaluationBatch, NumEval
+from torchmetrics.functional.text import chrf_score
 
 eval_batch = EvaluationBatch.from_jsonl("data/sample_extra_missing.jsonl")
 

@@ -1,6 +1,6 @@
 from typing import Any, Literal
 
-from sevals.base import EvaluatorBase
+from structured_evals.base import EvaluatorBase
 
 
 class ListEval(EvaluatorBase[list[Any], float]):

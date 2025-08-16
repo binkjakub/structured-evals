@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from sevals.aggregations import get_aggregation
-from sevals.base import EvaluatorBase
-from sevals.eval_dict import DictEval, DictEvalOutput
+from structured_evals.aggregations import get_aggregation
+from structured_evals.base import EvaluatorBase
+from structured_evals.eval_dict import DictEval, DictEvalOutput
 
 
 @dataclass(kw_only=True)

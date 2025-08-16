@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Literal
 
-from sevals.eval_dict import DictEvalOutput
+from structured_evals.eval_dict import DictEvalOutput
 
 
 def get_aggregation(aggregation: str) -> "Aggregation":

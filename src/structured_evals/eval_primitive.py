@@ -1,6 +1,6 @@
 import datetime
 
-from sevals.base import EvaluatorBase, T_in
+from structured_evals.base import EvaluatorBase, T_in
 
 T_numeric = int | float
 T_date = datetime.datetime | datetime.date
