@@ -1,61 +1,31 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "structured-evals"
-dynamic = ["version"]
-description = 'Evaluation tools for structured LLMs outputs'
+version = "0.1.0"
+description = "Evaluation of LLMs' structured outputs"
 readme = "README.md"
-requires-python = ">=3.10"
-keywords = ["evaluation", "transformers", "structured", "LLM"]
 authors = [
-    { name = "jbinkowski", email = "jakub.binkowski@pwr.edu.pl" },
+    { name = "jakub.binkowski", email = "jakub.binkowski@pwr.edu.pl" }
 ]
-classifiers = [
-    "Development Status :: 4 - Beta",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
-]
+requires-python = ">=3.12"
 dependencies = [
-    "torchmetrics==1.4.0",
-    " PyYAML==6.0.2 ",
+    "langchain>=0.3.27",
+    "pyyaml>=6.0.2",
+    "torchmetrics>=1.8.1",
 ]
 
-[project.urls]
-Documentation = "https://github.com/jbinkowski/structured-evals#readme"
-Issues = "https://github.com/jbinkowski/structured-evals/issues"
-Source = "https://github.com/jbinkowski/structured-evals"
+[build-system]
+requires = ["uv_build>=0.8.11,<0.9.0"]
+build-backend = "uv_build"
 
-[tool.hatch.metadata]
-allow-direct-references = true
-
-[tool.hatch.version]
-path = "sevals/__init__.py"
-
-[tool.hatch.envs.dev]
-dependencies = [
-    "mypy==1.11.2",
-    "pre-commit==3.8.0",
-    "ruff==0.6.4",
-    "coverage==7.6.1",
-    "pytest==8.3.2",
+[dependency-groups]
+dev = [
+    "coverage>=7.10.3",
+    "mypy>=1.17.1",
+    "pip>=25.2",
+    "pre-commit>=4.3.0",
+    "pytest>=8.4.1",
+    "ruff>=0.12.9",
 ]
-
-[tool.hatch.envs.dev.scripts]
-format-check = "pre-commit run --all-files"
-format-fix = "pre-commit run --all-files"
-types-check = "mypy --install-types --non-interactive {args:sevals tests}"
-unit-test = "coverage run --module pytest"
-lint-check = ["format-fix", "types-check"]
-full-check = ["lint-check", "unit-test"]
-
-[tool.hatch.build.targets.wheel]
-packages = ["sevals"]
 
 [tool.ruff]
 line-length = 100
