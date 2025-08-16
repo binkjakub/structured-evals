@@ -33,7 +33,7 @@ jobs:
         run: uv run pre-commit run --all-files
 
       - name: Run mypy type checking
-        run: uv run mypy  --install-types --non-interactive sevals tests examples
+        run: uv run mypy  --install-types --non-interactive src tests examples
 
       - name: Run tests with coverage
         run: uv run coverage run -m pytest tests

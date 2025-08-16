@@ -1,5 +1,5 @@
 all: quality
-check_dirs := sevals tests examples
+check_dirs := src tests examples
 
 install:
 	uv sync --locked --all-extras --dev
