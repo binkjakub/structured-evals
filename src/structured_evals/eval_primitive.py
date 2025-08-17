@@ -27,6 +27,10 @@ class DateEval(EvaluatorBase[T_date, ItemEvalOutput]):
             return ItemEvalOutput(score=1.0)
         if not self.check_dtype(pred, target):
             return ItemEvalOutput(score=0.0)
+
+        assert isinstance(pred, (datetime.datetime, datetime.date)) and isinstance(
+            target, (datetime.datetime, datetime.date)
+        )
         return ItemEvalOutput(
             score=float(pred.strftime(self.date_fmt) == target.strftime(self.date_fmt))
         )

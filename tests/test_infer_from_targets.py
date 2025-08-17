@@ -7,7 +7,7 @@ from structured_evals.eval_dict import DictEval
 from structured_evals.eval_list import ListEval
 from structured_evals.eval_primitive import DateEval, NumEval
 from structured_evals.eval_text import EvalTextualMetric
-from structured_evals.infer_structure import (
+from structured_evals.infer_from_targets import (
     DEFAULT_LIST_AGGREGATION,
     DEFAULT_NGRAM_EVALUATOR,
     infer_structured_evaluator,

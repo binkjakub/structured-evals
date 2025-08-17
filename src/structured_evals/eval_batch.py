@@ -1,7 +1,7 @@
 from typing import Any, Literal
 
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
 
 from structured_evals.aggregations import get_aggregation
 from structured_evals.base import EvaluatorBase
@@ -11,6 +11,11 @@ from structured_evals.eval_dict import DictEval, DictEvalOutput
 class BatchDictEvalOutput(BaseModel):
     agg_results: dict[str, Any]
     item_results: list[DictEvalOutput]
+
+    @property
+    @computed_field
+    def total_items(self) -> int:
+        return len(self.item_results)
 
 
 class BatchDictEval(EvaluatorBase[list[dict[str, Any]], BatchDictEvalOutput]):
