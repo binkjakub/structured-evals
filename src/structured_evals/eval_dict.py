@@ -1,21 +1,24 @@
 from collections import defaultdict
-from dataclasses import dataclass
+from pprint import pformat
 from typing import Any, Literal
+
+from pydantic import BaseModel, model_validator
 
 from structured_evals.base import EvaluatorBase
 
 
-@dataclass(kw_only=True, frozen=True)
-class DictEvalOutput:
+class DictEvalOutput(BaseModel):
     results: dict[str, float]
     missing: dict[str, float]
     extra: dict[str, float]
 
-    def __post_init__(self) -> None:
+    @model_validator(mode="after")
+    def validate_results_and_missing(self) -> "DictEvalOutput":
         if any(
             res_value > 0 and res_key in self.missing for res_key, res_value in self.results.items()
         ):
             raise ValueError("Results must be zero when missing is greater than zero")
+        return self
 
     @classmethod
     def sum(cls, outputs: list["DictEvalOutput"]) -> dict[str, dict[str, float]]:
@@ -82,3 +85,6 @@ class DictEval(EvaluatorBase[dict[str, Any], DictEvalOutput]):
     def check_dtype(self, pred: dict[str, Any], target: dict[str, Any]) -> None:
         if not isinstance(pred, dict) or not isinstance(target, dict):
             raise ValueError("Both pred and target must be dictionaries: dict[str, Any].")
+
+    def __repr__(self) -> str:
+        return f"DictEval(eval_mapping={pformat(self.eval_mapping)}, error_strategy={self.error_strategy})"

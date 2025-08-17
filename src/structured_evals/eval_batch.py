@@ -1,15 +1,15 @@
-from dataclasses import dataclass
 from typing import Any, Literal
+
+from pydantic import BaseModel
 
 from structured_evals.aggregations import get_aggregation
 from structured_evals.base import EvaluatorBase
 from structured_evals.eval_dict import DictEval, DictEvalOutput
 
 
-@dataclass(kw_only=True)
-class BatchDictEvalOutput:
-    item_results: list[DictEvalOutput]
+class BatchDictEvalOutput(BaseModel):
     agg_results: dict[str, Any]
+    item_results: list[DictEvalOutput]
 
 
 class BatchDictEval(EvaluatorBase[list[dict[str, Any]], BatchDictEvalOutput]):
@@ -35,7 +35,7 @@ class BatchDictEval(EvaluatorBase[list[dict[str, Any]], BatchDictEvalOutput]):
                 if self.error_strategy == "raise":
                     raise err
                 else:
-                    # todo: handle ignore error strategy
+                    # TODO: handle ignore error strategy
                     raise NotImplementedError(
                         "ignore error strategy not implemented yet (need to define null values)"
                     )
@@ -47,3 +47,10 @@ class BatchDictEval(EvaluatorBase[list[dict[str, Any]], BatchDictEvalOutput]):
             raise ValueError("Both pred and target must be lists.")
         if len(pred) != len(target):
             raise ValueError("Length of pred and target must be the same.")
+
+    def __repr__(self) -> str:
+        return (
+            f"BatchDictEval(item_evaluator={self.item_evaluator.name}, aggregation={self.aggregation}, error_strategy={self.error_strategy})"
+            + "\n"
+            + f"\t{self.item_evaluator.__repr__()}"
+        )

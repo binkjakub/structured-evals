@@ -1,9 +1,20 @@
 from pprint import pprint
 
-from sevals import BatchDictEval, DateEval, DictEval, EvalTextualMetric, EvaluationBatch, NumEval
 from torchmetrics.functional.text import chrf_score
 
-eval_batch = EvaluationBatch.from_jsonl("data/sample_extra_missing.jsonl")
+from structured_evals import (
+    BatchDictEval,
+    DateEval,
+    DictEval,
+    EvalTextualMetric,
+    EvaluationBatch,
+    NumEval,
+)
+
+eval_batch = EvaluationBatch.from_json(
+    path="data/sample_extra_missing.jsonl",
+    record_format="yaml",
+)
 
 
 def chrf_eval(pred: str, target: str) -> float:

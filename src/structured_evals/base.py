@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, Literal
-
-from typing_extensions import TypeVar
+from typing import Generic, Literal, TypeVar
 
 T_in = TypeVar("T_in")
 T_out = TypeVar("T_out")
@@ -27,3 +25,6 @@ class EvaluatorBase(ABC, Generic[T_in, T_out]):
     @property
     def name(self) -> str:
         return self.__name or self.__class__.__name__
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(name={self.name})"

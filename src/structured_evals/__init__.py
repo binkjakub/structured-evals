@@ -5,6 +5,7 @@ from .eval_batch import BatchDictEval, BatchDictEvalOutput
 from .eval_dict import DictEval, DictEvalOutput
 from .eval_primitive import DateEval, NumEval
 from .eval_text import EvalTextualMetric
+from .infer_structure import infer_structured_evaluator
 from .loader import EvaluationBatch, load_json, load_jsonl
 from .parsing import parse_yaml
 
@@ -21,4 +22,5 @@ __all__ = [
     "load_jsonl",
     "EvaluationBatch",
     "parse_yaml",
+    "infer_structured_evaluator",
 ]

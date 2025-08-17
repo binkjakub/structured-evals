@@ -7,6 +7,7 @@ T_date = datetime.datetime | datetime.date
 
 
 class NumEval(EvaluatorBase[T_numeric, float]):
+    # TODO: add support for precision specification
     def evaluate(self, pred: T_numeric, target: T_numeric) -> float:
         return float(pred == target)
 
