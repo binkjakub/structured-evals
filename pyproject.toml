@@ -21,9 +21,11 @@ build-backend = "uv_build"
 dev = [
     "coverage>=7.10.3",
     "mypy>=1.17.1",
+    "pdbpp>=0.11.7",
     "pip>=25.2",
     "pre-commit>=4.3.0",
     "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
     "ruff>=0.12.9",
 ]
 
@@ -40,16 +42,17 @@ disallow_incomplete_defs = true
 check_untyped_defs = true
 
 [tool.coverage.run]
-source_pkgs = ["sevals", "tests"]
+source_pkgs = ["structured_evals", "tests"]
 branch = true
 parallel = false
 omit = []
 
 [tool.coverage.paths]
-structured_evals = ["sevals"]
+structured_evals = ["structured_evals"]
 tests = ["tests"]
 
 [tool.coverage.report]
+show_missing = true
 exclude_lines = [
     "no cov",
     "if __name__ == .__main__.:",

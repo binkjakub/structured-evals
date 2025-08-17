@@ -27,7 +27,7 @@ birthday: 1990-01-01
 
 To perform evaluation we need to define structure of expected output and how it should be evaluated with the provided evaluators:
 ```python
-from sevals import BatchDictEval, DateEval, DictEval, EvalTextualMetric, EvaluationBatch, NumEval
+from structured_evals import BatchDictEval, DateEval, DictEval, EvalTextualMetric, EvaluationBatch, NumEval
 evaluator = BatchDictEval(
     item_evaluator=DictEval(
         eval_mapping={
@@ -60,7 +60,7 @@ from pprint import pprint
 
 from torchmetrics.functional.text import chrf_score
 
-from sevals import BatchDictEval, DateEval, DictEval, EvalTextualMetric, EvaluationBatch, NumEval
+from structured_evals import BatchDictEval, DateEval, DictEval, EvalTextualMetric, EvaluationBatch, NumEval
 
 eval_batch = EvaluationBatch(
     pred=[
