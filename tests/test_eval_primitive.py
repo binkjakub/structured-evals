@@ -1,7 +1,5 @@
 from datetime import datetime
 
-import pytest
-
 from structured_evals.eval_primitive import DateEval, NumEval
 
 
@@ -19,8 +17,7 @@ def test_eval_float() -> None:
 
 def test_num_eval_with_bad_types() -> None:
     evaluator = NumEval()
-    with pytest.raises(TypeError):
-        evaluator(1, "target")  # type: ignore
+    assert evaluator(1, "target").score == 0.0
 
 
 def test_date_eval_equal_dates() -> None:
@@ -40,5 +37,22 @@ def test_date_eval_ignores_time_part() -> None:
 
 def test_date_equal_invalid_dtype() -> None:
     evaluator = DateEval()
-    with pytest.raises(TypeError):
-        evaluator(datetime(2021, 1, 1), "2021-01-01")  # type: ignore
+    assert evaluator(datetime(2021, 1, 1), "2021-01-01").score == 0.0
+
+
+def test_num_eval_null_handling() -> None:
+    evaluator = NumEval()
+    # Both null should return 1.0
+    assert evaluator(None, None).score == 1.0
+    # One null should return 0.0
+    assert evaluator(None, 1).score == 0.0
+    assert evaluator(1, None).score == 0.0
+
+
+def test_date_eval_null_handling() -> None:
+    evaluator = DateEval()
+    # Both null should return 1.0
+    assert evaluator(None, None).score == 1.0
+    # One null should return 0.0
+    assert evaluator(None, datetime(2021, 1, 1)).score == 0.0
+    assert evaluator(datetime(2021, 1, 1), None).score == 0.0

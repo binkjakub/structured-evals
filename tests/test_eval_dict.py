@@ -72,8 +72,7 @@ def test_eval_dict_raises_on_default_strategy_and_invalid_field_dtype() -> None:
         "num": 1,
     }
     target = {"num": "1"}
-    with pytest.raises(TypeError):
-        eval_(pred, target)
+    assert eval_(pred, target).results == {"num": ItemEvalOutput(score=0.0)}
 
 
 def test_eval_dict_ignore_error_strategy_and_invalid_field_dtype() -> None:

@@ -2,8 +2,8 @@ import datetime
 
 from structured_evals.base import EvaluatorBase, ItemEvalOutput, T_in
 
-T_numeric = int | float
-T_date = datetime.datetime | datetime.date
+T_numeric = int | float | None
+T_date = datetime.datetime | datetime.date | None
 
 
 class NumEval(EvaluatorBase[T_numeric, ItemEvalOutput]):
@@ -23,11 +23,18 @@ class DateEval(EvaluatorBase[T_date, ItemEvalOutput]):
         self.date_fmt = date_fmt
 
     def evaluate(self, pred: T_date, target: T_date) -> ItemEvalOutput:
+        if self.is_null(pred) and self.is_null(target):
+            return ItemEvalOutput(score=1.0)
         if not self.check_dtype(pred, target):
             return ItemEvalOutput(score=0.0)
         return ItemEvalOutput(
             score=float(pred.strftime(self.date_fmt) == target.strftime(self.date_fmt))
         )
 
+    def is_null(self, item: T_date) -> bool:
+        return item is None
+
     def check_dtype(self, pred: T_in, target: T_in) -> bool:
-        return isinstance(pred, T_date) and isinstance(target, T_date)
+        return isinstance(pred, (datetime.datetime, datetime.date)) and isinstance(
+            target, (datetime.datetime, datetime.date)
+        )
