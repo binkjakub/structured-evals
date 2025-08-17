@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from typing import Any
 
 import yaml
@@ -19,4 +20,11 @@ def parse_yaml(text: str) -> dict[str, Any]:
     res = yaml.safe_load(yaml_str)
     if res is None:
         return {}
+
+    for key, value in res.items():
+        try:
+            res[key] = datetime.fromisoformat(value).date()
+        except (ValueError, TypeError):
+            pass
+
     return res

@@ -1,5 +1,6 @@
 from typing import Any, Literal
 
+from loguru import logger
 from pydantic import BaseModel
 
 from structured_evals.aggregations import get_aggregation
@@ -25,10 +26,12 @@ class BatchDictEval(EvaluatorBase[list[dict[str, Any]], BatchDictEvalOutput]):
         self.error_strategy = error_strategy
 
     def evaluate(
-        self, pred: list[dict[str, Any]], target: list[dict[str, Any]]
+        self,
+        pred: list[dict[str, Any]],
+        target: list[dict[str, Any]],
     ) -> BatchDictEvalOutput:
         item_results: list[DictEvalOutput] = []
-        for pred_item, target_item in zip(pred, target):
+        for i, (pred_item, target_item) in enumerate(zip(pred, target, strict=True)):
             try:
                 item_results.append(self.item_evaluator.evaluate(pred_item, target_item))
             except TypeError as err:
@@ -39,14 +42,14 @@ class BatchDictEval(EvaluatorBase[list[dict[str, Any]], BatchDictEvalOutput]):
                     raise NotImplementedError(
                         "ignore error strategy not implemented yet (need to define null values)"
                     )
+            except Exception as err:
+                logger.error(f"Unexpected error in item {i}: {err}")
+                raise
         agg_results = self.aggregation(outs=item_results)
         return BatchDictEvalOutput(item_results=item_results, agg_results=agg_results)
 
-    def check_dtype(self, pred: list[dict[str, Any]], target: list[dict[str, Any]]) -> None:
-        if not isinstance(pred, list) or not isinstance(target, list):
-            raise ValueError("Both pred and target must be lists.")
-        if len(pred) != len(target):
-            raise ValueError("Length of pred and target must be the same.")
+    def check_dtype(self, pred: list[dict[str, Any]], target: list[dict[str, Any]]) -> bool:
+        return isinstance(pred, list) and isinstance(target, list) and len(pred) == len(target)
 
     def __repr__(self) -> str:
         return (

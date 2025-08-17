@@ -70,9 +70,9 @@ class F1ScoreAggregation(Aggregation):
             all_relevant.append(len(out.results.values()))
 
             if self.mode == "hard":
-                relevant_retrieved.append(sum(float(val > 0) for val in out.results.values()))
+                relevant_retrieved.append(sum(float(val.score > 0) for val in out.results.values()))
             elif self.mode == "soft":
-                relevant_retrieved.append(sum(out.results.values()))
+                relevant_retrieved.append(sum(val.score for val in out.results.values()))
             else:
                 raise ValueError(f"Unsupported mode: {self.mode}")
 

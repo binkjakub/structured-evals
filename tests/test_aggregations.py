@@ -1,6 +1,7 @@
 import pytest
 
 from structured_evals.aggregations import AverageAggregation, F1ScoreAggregation
+from structured_evals.base import ItemEvalOutput
 from structured_evals.eval_dict import DictEvalOutput
 
 
@@ -8,12 +9,12 @@ def test_average_aggregation() -> None:
     aggregation = AverageAggregation()
     outs = [
         DictEvalOutput(
-            results={"a": 1, "b": 0},
+            results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
             missing={"b": 1},
             extra={},
         ),
         DictEvalOutput(
-            results={"a": 0.5, "b": 0},
+            results={"a": ItemEvalOutput(score=0.5), "b": ItemEvalOutput(score=0)},
             missing={"b": 1},
             extra={"c": 1},
         ),
@@ -31,17 +32,17 @@ def test_f1_hard_macro_aggregation() -> None:
 
     outs = [
         DictEvalOutput(
-            results={"a": 0.75, "b": 0},
+            results={"a": ItemEvalOutput(score=0.75), "b": ItemEvalOutput(score=0)},
             missing={"b": 1},
             extra={},
         ),
         DictEvalOutput(
-            results={"a": 1, "b": 0},
+            results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
             missing={"b": 1},
             extra={"c": 1},
         ),
         DictEvalOutput(
-            results={"a": 1, "b": 0.5},
+            results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0.5)},
             missing={},
             extra={"c": 1, "d": 1},
         ),
@@ -61,17 +62,17 @@ def test_f1_hard_micro_aggregation() -> None:
 
     outs = [
         DictEvalOutput(
-            results={"a": 0.75, "b": 0},
+            results={"a": ItemEvalOutput(score=0.75), "b": ItemEvalOutput(score=0)},
             missing={"b": 1},
             extra={},
         ),
         DictEvalOutput(
-            results={"a": 1, "b": 0},
+            results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
             missing={"b": 1},
             extra={"c": 1},
         ),
         DictEvalOutput(
-            results={"a": 1, "b": 0.5},
+            results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0.5)},
             missing={},
             extra={"c": 1, "d": 1},
         ),
@@ -91,17 +92,17 @@ def test_f1_soft_micro_aggregation() -> None:
 
     outs = [
         DictEvalOutput(
-            results={"a": 0.75, "b": 0},
+            results={"a": ItemEvalOutput(score=0.75), "b": ItemEvalOutput(score=0)},
             missing={"b": 1},
             extra={},
         ),
         DictEvalOutput(
-            results={"a": 1, "b": 0},
+            results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
             missing={"b": 1},
             extra={"c": 1},
         ),
         DictEvalOutput(
-            results={"a": 0.25, "b": 0.5},
+            results={"a": ItemEvalOutput(score=0.25), "b": ItemEvalOutput(score=0.5)},
             missing={},
             extra={"c": 1, "d": 1},
         ),
@@ -121,17 +122,17 @@ def test_f1_soft_macro_aggregation() -> None:
 
     outs = [
         DictEvalOutput(
-            results={"a": 0.75, "b": 0},
+            results={"a": ItemEvalOutput(score=0.75), "b": ItemEvalOutput(score=0)},
             missing={"b": 1},
             extra={},
         ),
         DictEvalOutput(
-            results={"a": 1, "b": 0},
+            results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
             missing={"b": 1},
             extra={"c": 1},
         ),
         DictEvalOutput(
-            results={"a": 0.25, "b": 0.5},
+            results={"a": ItemEvalOutput(score=0.25), "b": ItemEvalOutput(score=0.5)},
             missing={},
             extra={"c": 1, "d": 1},
         ),

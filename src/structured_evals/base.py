@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Generic, Literal, TypeVar
 
+from pydantic.main import BaseModel
+
 T_in = TypeVar("T_in")
 T_out = TypeVar("T_out")
 ErrorStrategy = Literal["raise", "ignore"]
@@ -11,11 +13,10 @@ class EvaluatorBase(ABC, Generic[T_in, T_out]):
         self.__name = name
 
     def __call__(self, pred: T_in, target: T_in) -> T_out:
-        self.check_dtype(pred, target)
         return self.evaluate(pred, target)
 
     @abstractmethod
-    def check_dtype(self, pred: T_in, target: T_in) -> None:
+    def check_dtype(self, pred: T_in, target: T_in) -> bool:
         pass
 
     @abstractmethod
@@ -28,3 +29,7 @@ class EvaluatorBase(ABC, Generic[T_in, T_out]):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name})"
+
+
+class ItemEvalOutput(BaseModel):
+    score: float

@@ -1,21 +1,22 @@
 from collections import defaultdict
-from pprint import pformat
 from typing import Any, Literal
 
 from pydantic import BaseModel, model_validator
+from tabulate import tabulate
 
-from structured_evals.base import EvaluatorBase
+from structured_evals.base import EvaluatorBase, ItemEvalOutput
 
 
 class DictEvalOutput(BaseModel):
-    results: dict[str, float]
+    results: dict[str, ItemEvalOutput]
     missing: dict[str, float]
     extra: dict[str, float]
 
     @model_validator(mode="after")
     def validate_results_and_missing(self) -> "DictEvalOutput":
         if any(
-            res_value > 0 and res_key in self.missing for res_key, res_value in self.results.items()
+            res_value.score > 0 and res_key in self.missing
+            for res_key, res_value in self.results.items()
         ):
             raise ValueError("Results must be zero when missing is greater than zero")
         return self
@@ -27,14 +28,14 @@ class DictEvalOutput(BaseModel):
         extra: dict[str, Any] = defaultdict(float)
 
         for output in outputs:
-            for key, value in output.results.items():
-                results[key] += value
+            for result_key, result_value in output.results.items():
+                results[result_key] += result_value.score
 
-            for key, value in output.missing.items():
-                missing[key] += value
+            for missing_key, missing_value in output.missing.items():
+                missing[missing_key] += missing_value
 
-            for key, value in output.extra.items():
-                extra[key] += value
+            for extra_key, extra_value in output.extra.items():
+                extra[extra_key] += extra_value
 
         return dict(results=dict(results), missing=dict(missing), extra=dict(extra))
 
@@ -62,7 +63,7 @@ class DictEval(EvaluatorBase[dict[str, Any], DictEvalOutput]):
         for key, evaluator in self.eval_mapping.items():
             if key not in pred:
                 missing[key] += 1
-                results[key] = 0.0
+                results[key] = ItemEvalOutput(score=0.0)
             else:
                 try:
                     results[key] = evaluator(pred[key], target[key])
@@ -70,21 +71,28 @@ class DictEval(EvaluatorBase[dict[str, Any], DictEvalOutput]):
                     if self.error_strategy == "raise":
                         raise
                     elif self.error_strategy == "ignore":
-                        results[key] = 0.0
+                        results[key] = ItemEvalOutput(score=0.0)
                     else:
                         raise ValueError(
                             f"Unsupported error strategy: {self.error_strategy}"
                         ) from err
-
         for key in pred:
             if key not in target:
                 extra[key] += 1
 
         return DictEvalOutput(results=results, missing=dict(missing), extra=dict(extra))
 
-    def check_dtype(self, pred: dict[str, Any], target: dict[str, Any]) -> None:
-        if not isinstance(pred, dict) or not isinstance(target, dict):
-            raise ValueError("Both pred and target must be dictionaries: dict[str, Any].")
+    def check_dtype(self, pred: dict[str, Any], target: dict[str, Any]) -> bool:
+        return isinstance(pred, dict) and isinstance(target, dict)
 
     def __repr__(self) -> str:
-        return f"DictEval(eval_mapping={pformat(self.eval_mapping)}, error_strategy={self.error_strategy})"
+        table = []
+        for key, evaluator in self.eval_mapping.items():
+            table.append([key, repr(evaluator)])
+        table_str = tabulate(
+            table,
+            headers=["Key", "Evaluator"],
+            tablefmt="grid",
+            maxcolwidths=[None, 40],
+        )
+        return f"DictEval(error_strategy={self.error_strategy})\n{table_str}"

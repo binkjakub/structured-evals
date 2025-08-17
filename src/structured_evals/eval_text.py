@@ -1,16 +1,26 @@
-from typing import Callable
+from typing import Any, Callable
 
-from structured_evals.base import EvaluatorBase, T_out
+from structured_evals.base import EvaluatorBase, ItemEvalOutput
 
 
-class EvalTextualMetric(EvaluatorBase[str, T_out]):
-    def __init__(self, metric_fn: Callable[[str, str], T_out], metric_name: str):
+class EvalTextualMetric(EvaluatorBase[str, ItemEvalOutput]):
+    def __init__(self, metric_fn: Callable[[str, str], float], metric_name: str):
         super().__init__(metric_name)
         self.metric_fn = metric_fn
 
-    def evaluate(self, pred: str, target: str) -> T_out:
-        return self.metric_fn(pred, target)
+    def evaluate(self, pred: str | None, target: str | None) -> ItemEvalOutput:
+        if self.is_null(pred) and self.is_null(target):
+            return ItemEvalOutput(score=1.0)
+        elif self.is_null(pred) or self.is_null(target):
+            return ItemEvalOutput(score=0.0)
+        elif not self.check_dtype(pred, target):
+            return ItemEvalOutput(score=0.0)
 
-    def check_dtype(self, pred: str, target: str) -> None:
-        if not isinstance(pred, str) or not isinstance(target, str):
-            raise ValueError("Both pred and target must be strings.")
+        assert isinstance(pred, str) and isinstance(target, str)
+        return ItemEvalOutput(score=self.metric_fn(pred, target))
+
+    def is_null(self, item: str | None) -> bool:
+        return item is None or item == ""
+
+    def check_dtype(self, pred: Any, target: Any) -> bool:
+        return isinstance(pred, str) and isinstance(target, str)
