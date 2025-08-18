@@ -33,8 +33,14 @@ class ListEval(EvaluatorBase[list[Any], ListEvalOutput]):
     def evaluate(self, pred: list[Any], target: list[Any]) -> ListEvalOutput:
         if self.is_null(pred) and self.is_null(target):
             return self.max_score
-        elif self.is_null(pred) or self.is_null(target):
-            return self.zero_score
+        elif self.is_null(pred) and not self.is_null(target):
+            score = self.zero_score
+            score.num_missing_items = len(target)
+            return score
+        elif not self.is_null(pred) and self.is_null(target):
+            score = self.zero_score
+            score.num_extra_items = len(pred)
+            return score
         elif not self.check_dtype(pred, target):
             return self.zero_score
 
@@ -61,7 +67,11 @@ class ListEval(EvaluatorBase[list[Any], ListEvalOutput]):
                 best_pred_idx = np.argmax(sim[i][preds_queue])
                 best_pred_score = sim[i][preds_queue][best_pred_idx]
                 results["score"] += best_pred_score
-                preds_queue.pop(best_pred_idx)
+
+                if best_pred_score > 0.0:
+                    preds_queue.pop(best_pred_idx)
+                else:
+                    results["num_missing_items"] += 1
 
         results["score"] /= sim.shape[0]
         results["num_extra_items"] += len(preds_queue)
