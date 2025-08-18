@@ -1,42 +1,68 @@
+from collections import defaultdict
 from typing import Any, Literal
 
 from pydantic import BaseModel, computed_field
 from tabulate import tabulate
+from tqdm import tqdm
 
-from structured_evals.aggregations import get_aggregation
 from structured_evals.base import EvaluatorBase, ItemEvalOutput
 from structured_evals.eval_dict import DictEvalOutput
 
 
 class BatchDictEvalOutput(BaseModel):
-    agg_results: dict[str, Any]
+    schema_keys: list[str]
     item_results: list[DictEvalOutput]
 
+    @computed_field  # type: ignore[prop-decorator]
     @property
-    @computed_field
-    def total_items(self) -> int:
+    def num_items(self) -> int:
         return len(self.item_results)
+
+    @property
+    def scores(self) -> dict[str, list[float]]:
+        scores: dict[str, list[float]] = {key: [] for key in self.schema_keys}
+        for item_res in self.item_results:
+            for key, score in item_res.results.items():
+                scores[key].append(score.score)
+        return scores
+
+    @property
+    def missing_keys(self) -> dict[str, list[float]]:
+        missing_keys: dict[str, list[float]] = {key: [] for key in self.schema_keys}
+        for item_res in self.item_results:
+            for key, missing_key in item_res.missing_keys.items():
+                missing_keys[key].append(missing_key)
+        return missing_keys
+
+    @property
+    def num_times_extra_keys(self) -> dict[str, int]:
+        extra_keys: dict[str, int] = defaultdict(lambda: 0)
+        for item_res in self.item_results:
+            for key in item_res.extra_keys.keys():
+                extra_keys[key] += 1
+        return extra_keys
 
 
 class BatchDictEval(EvaluatorBase[list[dict[str, Any]], BatchDictEvalOutput]):
     def __init__(
         self,
         eval_mapping: dict[str, EvaluatorBase],
-        aggregation: str,
         error_strategy: Literal["raise", "ignore"] = "raise",
+        verbose: bool = False,
     ) -> None:
         super().__init__()
         self.eval_mapping = eval_mapping
+        self.schema_keys = list(eval_mapping.keys())
         self.error_strategy = error_strategy
-        self.aggregation = get_aggregation(aggregation)
+        self.verbose = verbose
 
     @property
     def zero_score(self) -> BatchDictEvalOutput:
-        return BatchDictEvalOutput(agg_results={}, item_results=[])
+        return BatchDictEvalOutput(schema_keys=self.schema_keys, item_results=[])
 
     @property
     def max_score(self) -> BatchDictEvalOutput:
-        return BatchDictEvalOutput(agg_results={}, item_results=[])
+        return BatchDictEvalOutput(schema_keys=self.schema_keys, item_results=[])
 
     def evaluate(
         self,
@@ -58,20 +84,25 @@ class BatchDictEval(EvaluatorBase[list[dict[str, Any]], BatchDictEvalOutput]):
         missing_results: dict[str, list[ItemEvalOutput]] = {key: [] for key in schema_keys}
         missing_mask: dict[str, list[int]] = {key: [] for key in schema_keys}
 
-        for key, evaluator in self.eval_mapping.items():
-            eval_pairs: list[tuple[dict[str, Any], dict[str, Any]]] = []
-            for pred_item, target_item in zip(pred, target, strict=True):
-                if key not in pred_item:
-                    missing_mask[key].append(1)
-                    missing_results[key].append(evaluator.zero_score)
-                else:
-                    missing_mask[key].append(0)
-                    eval_pairs.append((pred_item[key], target_item[key]))
+        with tqdm(
+            self.eval_mapping.items(),
+            disable=not self.verbose,
+        ) as pbar:
+            for key, evaluator in pbar:
+                pbar.set_description(f"Evaluating key: {key} ({evaluator.name})")
+                eval_pairs: list[tuple[dict[str, Any], dict[str, Any]]] = []
+                for pred_item, target_item in zip(pred, target, strict=True):
+                    if key not in pred_item:
+                        missing_mask[key].append(1)
+                        missing_results[key].append(evaluator.zero_score)
+                    else:
+                        missing_mask[key].append(0)
+                        eval_pairs.append((pred_item[key], target_item[key]))
 
-            if hasattr(evaluator, "evaluate_batch"):
-                valid_results[key] = evaluator.evaluate_batch(*zip(*eval_pairs))
-            else:
-                valid_results[key] = [evaluator.evaluate(*pair) for pair in eval_pairs]
+                if hasattr(evaluator, "evaluate_batch"):
+                    valid_results[key] = evaluator.evaluate_batch(*zip(*eval_pairs))
+                else:
+                    valid_results[key] = [evaluator.evaluate(*pair) for pair in eval_pairs]
 
         assert all(
             len(missing_results[key]) + len(valid_results[key]) == num_items for key in schema_keys
@@ -94,13 +125,13 @@ class BatchDictEval(EvaluatorBase[list[dict[str, Any]], BatchDictEvalOutput]):
             results.append(
                 DictEvalOutput(
                     results=item_res,
-                    missing={key: missing_mask[key][i] for key in schema_keys},
-                    extra={key: 1 for key in pred[i].keys() if key not in schema_keys},
+                    missing_keys={key: missing_mask[key][i] for key in schema_keys},
+                    extra_keys={key: 1 for key in pred[i].keys() if key not in schema_keys},
                 )
             )
 
         return BatchDictEvalOutput(
-            agg_results=self.aggregation(results),
+            schema_keys=schema_keys,
             item_results=results,
         )
 

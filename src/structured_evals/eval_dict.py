@@ -9,26 +9,8 @@ from structured_evals.base import EvaluatorBase, ItemEvalOutput
 
 class DictEvalOutput(BaseModel):
     results: dict[str, ItemEvalOutput]
-    missing: dict[str, float]
-    extra: dict[str, float]
-
-    @classmethod
-    def sum(cls, outputs: list["DictEvalOutput"]) -> dict[str, dict[str, float]]:
-        results: dict[str, Any] = defaultdict(float)
-        missing: dict[str, Any] = defaultdict(float)
-        extra: dict[str, Any] = defaultdict(float)
-
-        for output in outputs:
-            for result_key, result_value in output.results.items():
-                results[result_key] += result_value.score
-
-            for missing_key, missing_value in output.missing.items():
-                missing[missing_key] += missing_value
-
-            for extra_key, extra_value in output.extra.items():
-                extra[extra_key] += extra_value
-
-        return dict(results=dict(results), missing=dict(missing), extra=dict(extra))
+    missing_keys: dict[str, float]
+    extra_keys: dict[str, float]
 
 
 class DictEval(EvaluatorBase[dict[str, Any], DictEvalOutput]):
@@ -45,16 +27,16 @@ class DictEval(EvaluatorBase[dict[str, Any], DictEvalOutput]):
     def zero_score(self) -> DictEvalOutput:
         return DictEvalOutput(
             results={key: self.eval_mapping[key].zero_score for key in self.eval_mapping.keys()},
-            missing={},
-            extra={},
+            missing_keys={},
+            extra_keys={},
         )
 
     @property
     def max_score(self) -> DictEvalOutput:
         return DictEvalOutput(
             results={key: self.eval_mapping[key].max_score for key in self.eval_mapping.keys()},
-            missing={},
-            extra={},
+            missing_keys={},
+            extra_keys={},
         )
 
     def evaluate(self, pred: dict[str, Any], target: dict[str, Any]) -> DictEvalOutput:
@@ -87,7 +69,7 @@ class DictEval(EvaluatorBase[dict[str, Any], DictEvalOutput]):
             if key not in target:
                 extra[key] += 1
 
-        return DictEvalOutput(results=results, missing=dict(missing), extra=dict(extra))
+        return DictEvalOutput(results=results, missing_keys=dict(missing), extra_keys=dict(extra))
 
     def check_dtype(self, pred: dict[str, Any], target: dict[str, Any]) -> bool:
         return isinstance(pred, dict) and isinstance(target, dict)

@@ -16,7 +16,7 @@ fix:
 	uv run pre-commit run --all-files
 
 test:
-	uv run coverage run --branch -m pytest tests
+	uv run coverage run --branch -m pytest tests -vv
 
 coverage:
 	uv run coverage report --show-missing

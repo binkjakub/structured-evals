@@ -2,51 +2,59 @@ import pytest
 
 from structured_evals.aggregations import AverageAggregation, F1ScoreAggregation
 from structured_evals.base import ItemEvalOutput
+from structured_evals.eval_batch import BatchDictEvalOutput
 from structured_evals.eval_dict import DictEvalOutput
 
 
 def test_average_aggregation() -> None:
     aggregation = AverageAggregation()
-    outs = [
-        DictEvalOutput(
-            results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
-            missing={"b": 1},
-            extra={},
-        ),
-        DictEvalOutput(
-            results={"a": ItemEvalOutput(score=0.5), "b": ItemEvalOutput(score=0)},
-            missing={"b": 1},
-            extra={"c": 1},
-        ),
-    ]
+    outs = BatchDictEvalOutput(
+        schema_keys=["a", "b"],
+        item_results=[
+            DictEvalOutput(
+                results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
+                missing_keys={"b": 1},
+                extra_keys={},
+            ),
+            DictEvalOutput(
+                results={"a": ItemEvalOutput(score=0.5), "b": ItemEvalOutput(score=0)},
+                missing_keys={"b": 1},
+                extra_keys={"c": 1},
+            ),
+        ],
+    )
 
     assert {
-        "results": {"a": 0.75, "b": 0.0},
-        "missing": {"b": 1.0},
-        "extra": {"c": 0.5},
+        "mean": {"a": 0.75, "b": 0.0},
+        "standard_error": {"a": pytest.approx(0.17677, abs=1e-3), "b": 0.0},
+        "mean_times_missing": {"a": 0.0, "b": 1.0},
+        "mean_times_extra": {"c": 0.5},
     } == aggregation(outs)
 
 
 def test_f1_hard_macro_aggregation() -> None:
     aggregation = F1ScoreAggregation(mode="hard", average="macro")
 
-    outs = [
-        DictEvalOutput(
-            results={"a": ItemEvalOutput(score=0.75), "b": ItemEvalOutput(score=0)},
-            missing={"b": 1},
-            extra={},
-        ),
-        DictEvalOutput(
-            results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
-            missing={"b": 1},
-            extra={"c": 1},
-        ),
-        DictEvalOutput(
-            results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0.5)},
-            missing={},
-            extra={"c": 1, "d": 1},
-        ),
-    ]
+    outs = BatchDictEvalOutput(
+        schema_keys=["a", "b"],
+        item_results=[
+            DictEvalOutput(
+                results={"a": ItemEvalOutput(score=0.75), "b": ItemEvalOutput(score=0)},
+                missing_keys={"b": 1},
+                extra_keys={},
+            ),
+            DictEvalOutput(
+                results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
+                missing_keys={"b": 1},
+                extra_keys={"c": 1},
+            ),
+            DictEvalOutput(
+                results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0.5)},
+                missing_keys={},
+                extra_keys={"c": 1, "d": 1},
+            ),
+        ],
+    )
 
     assert pytest.approx(
         {
@@ -60,23 +68,26 @@ def test_f1_hard_macro_aggregation() -> None:
 def test_f1_hard_micro_aggregation() -> None:
     aggregation = F1ScoreAggregation(mode="hard", average="micro")
 
-    outs = [
-        DictEvalOutput(
-            results={"a": ItemEvalOutput(score=0.75), "b": ItemEvalOutput(score=0)},
-            missing={"b": 1},
-            extra={},
-        ),
-        DictEvalOutput(
-            results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
-            missing={"b": 1},
-            extra={"c": 1},
-        ),
-        DictEvalOutput(
-            results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0.5)},
-            missing={},
-            extra={"c": 1, "d": 1},
-        ),
-    ]
+    outs = BatchDictEvalOutput(
+        schema_keys=["a", "b"],
+        item_results=[
+            DictEvalOutput(
+                results={"a": ItemEvalOutput(score=0.75), "b": ItemEvalOutput(score=0)},
+                missing_keys={"b": 1},
+                extra_keys={},
+            ),
+            DictEvalOutput(
+                results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
+                missing_keys={"b": 1},
+                extra_keys={"c": 1},
+            ),
+            DictEvalOutput(
+                results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0.5)},
+                missing_keys={},
+                extra_keys={"c": 1, "d": 1},
+            ),
+        ],
+    )
 
     assert pytest.approx(
         {
@@ -90,23 +101,26 @@ def test_f1_hard_micro_aggregation() -> None:
 def test_f1_soft_micro_aggregation() -> None:
     aggregation = F1ScoreAggregation(mode="soft", average="micro")
 
-    outs = [
-        DictEvalOutput(
-            results={"a": ItemEvalOutput(score=0.75), "b": ItemEvalOutput(score=0)},
-            missing={"b": 1},
-            extra={},
-        ),
-        DictEvalOutput(
-            results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
-            missing={"b": 1},
-            extra={"c": 1},
-        ),
-        DictEvalOutput(
-            results={"a": ItemEvalOutput(score=0.25), "b": ItemEvalOutput(score=0.5)},
-            missing={},
-            extra={"c": 1, "d": 1},
-        ),
-    ]
+    outs = BatchDictEvalOutput(
+        schema_keys=["a", "b"],
+        item_results=[
+            DictEvalOutput(
+                results={"a": ItemEvalOutput(score=0.75), "b": ItemEvalOutput(score=0)},
+                missing_keys={"b": 1},
+                extra_keys={},
+            ),
+            DictEvalOutput(
+                results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
+                missing_keys={"b": 1},
+                extra_keys={"c": 1},
+            ),
+            DictEvalOutput(
+                results={"a": ItemEvalOutput(score=0.25), "b": ItemEvalOutput(score=0.5)},
+                missing_keys={},
+                extra_keys={"c": 1, "d": 1},
+            ),
+        ],
+    )
 
     assert pytest.approx(
         {
@@ -120,23 +134,26 @@ def test_f1_soft_micro_aggregation() -> None:
 def test_f1_soft_macro_aggregation() -> None:
     aggregation = F1ScoreAggregation(mode="soft", average="macro")
 
-    outs = [
-        DictEvalOutput(
-            results={"a": ItemEvalOutput(score=0.75), "b": ItemEvalOutput(score=0)},
-            missing={"b": 1},
-            extra={},
-        ),
-        DictEvalOutput(
-            results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
-            missing={"b": 1},
-            extra={"c": 1},
-        ),
-        DictEvalOutput(
-            results={"a": ItemEvalOutput(score=0.25), "b": ItemEvalOutput(score=0.5)},
-            missing={},
-            extra={"c": 1, "d": 1},
-        ),
-    ]
+    outs = BatchDictEvalOutput(
+        schema_keys=["a", "b"],
+        item_results=[
+            DictEvalOutput(
+                results={"a": ItemEvalOutput(score=0.75), "b": ItemEvalOutput(score=0)},
+                missing_keys={"b": 1},
+                extra_keys={},
+            ),
+            DictEvalOutput(
+                results={"a": ItemEvalOutput(score=1), "b": ItemEvalOutput(score=0)},
+                missing_keys={"b": 1},
+                extra_keys={"c": 1},
+            ),
+            DictEvalOutput(
+                results={"a": ItemEvalOutput(score=0.25), "b": ItemEvalOutput(score=0.5)},
+                missing_keys={},
+                extra_keys={"c": 1, "d": 1},
+            ),
+        ],
+    )
 
     assert pytest.approx(
         {

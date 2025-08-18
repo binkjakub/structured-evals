@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Any, Literal
 
-from structured_evals.eval_dict import DictEvalOutput
+import numpy as np
+
+from structured_evals import BatchDictEvalOutput
 
 
 def get_aggregation(aggregation: str) -> "Aggregation":
@@ -13,28 +15,36 @@ def get_aggregation(aggregation: str) -> "Aggregation":
 
 class Aggregation(ABC):
     @abstractmethod
-    def __call__(self, outs: list[DictEvalOutput]) -> dict[str, Any]:
+    def __call__(self, outs: BatchDictEvalOutput) -> dict[str, Any]:
         raise NotImplementedError("Aggregation subclasses must implement __call__")
 
 
 class AverageAggregation(Aggregation):
-    def __call__(self, outs: list[DictEvalOutput]) -> dict[str, Any]:
-        outs_sum = DictEvalOutput.sum(outs)
+    def __call__(self, outs: BatchDictEvalOutput) -> dict[str, Any]:
+        mean: dict[str, Any] = {}
+        standard_error: dict[str, Any] = {}
+        mean_times_missing: dict[str, Any] = {}
+        mean_times_extra: dict[str, Any] = {}
 
-        results: dict[str, Any] = {}
-        missing: dict[str, Any] = {}
-        extra: dict[str, Any] = {}
+        for key in outs.scores:
+            mean[key] = float(np.mean(outs.scores[key]))
+            standard_error[key] = float(np.std(outs.scores[key]) / np.sqrt(outs.num_items))
 
-        for key in outs_sum["results"]:
-            results[key] = outs_sum["results"][key] / len(outs)
+        for key in outs.missing_keys:
+            if outs.missing_keys[key]:
+                mean_times_missing[key] = float(np.mean(outs.missing_keys[key]))
+            else:
+                mean_times_missing[key] = 0.0
 
-        for key in outs_sum["missing"]:
-            missing[key] = outs_sum["missing"][key] / len(outs)
+        for key in outs.num_times_extra_keys:
+            mean_times_extra[key] = outs.num_times_extra_keys[key] / outs.num_items
 
-        for key in outs_sum["extra"]:
-            extra[key] = outs_sum["extra"][key] / len(outs)
-
-        return {"results": results, "missing": missing, "extra": extra}
+        return {
+            "mean": mean,
+            "standard_error": standard_error,
+            "mean_times_missing": mean_times_missing,
+            "mean_times_extra": mean_times_extra,
+        }
 
 
 class F1ScoreAggregation(Aggregation):
@@ -60,13 +70,14 @@ class F1ScoreAggregation(Aggregation):
         self.mode = mode
         self.average = average
 
-    def __call__(self, outs: list[DictEvalOutput]) -> dict[str, Any]:
+    def __call__(self, outs: BatchDictEvalOutput) -> dict[str, Any]:
+        # TODO: refactor with new signature of BatchDictEvalOutput
         relevant_retrieved: list[float] = []
         all_retrieved: list[int] = []
         all_relevant: list[int] = []
 
-        for out in outs:
-            all_retrieved.append(len(out.results) + len(out.extra) - len(out.missing))
+        for out in outs.item_results:
+            all_retrieved.append(len(out.results) + len(out.extra_keys) - len(out.missing_keys))
             all_relevant.append(len(out.results.values()))
 
             if self.mode == "hard":

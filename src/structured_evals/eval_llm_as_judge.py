@@ -33,7 +33,7 @@ class LlmAsJudge(EvaluatorBase[str, ItemEvalOutput]):
         system_prompt: str | None = DEFAULT_SYSTEM_PROMPT,
         max_concurrent_calls: int = DEFAULT_MAX_CONCURRENT_CALLS,
     ) -> None:
-        super().__init__(f"LlmAsJudge(llm={llm.name})")
+        super().__init__(f"LlmAsJudge(llm={getattr(llm, 'model_name', '<unknown>')})")
         self.llm = llm
 
         messages: list[BaseMessage | BaseMessagePromptTemplate] = []

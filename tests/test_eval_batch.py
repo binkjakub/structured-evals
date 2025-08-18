@@ -9,7 +9,7 @@ from structured_evals.eval_primitive import DateEval, NumEval
 
 def test_eval_batch() -> None:
     item_evaluator = DictEval(eval_mapping={"num": NumEval(), "date": DateEval()})
-    eval_ = BatchDictEval(eval_mapping=item_evaluator.eval_mapping, aggregation="average")
+    eval_ = BatchDictEval(eval_mapping=item_evaluator.eval_mapping)
 
     pred = [
         {"num": 1, "date": datetime(2021, 1, 1)},
@@ -22,6 +22,12 @@ def test_eval_batch() -> None:
         {"num": 3, "date": datetime(2021, 1, 1)},
     ]
     output = eval_(pred, target)
-    assert pytest.approx(output.agg_results["results"], rel=1e-6) == {"num": 2 / 3, "date": 2 / 3}
-    assert pytest.approx(output.agg_results["missing"], rel=1e-6) == {"num": 0.0, "date": 1 / 3}
-    assert pytest.approx(output.agg_results["extra"]) == {"name": 1 / 3}
+    assert pytest.approx(output.scores, rel=1e-6) == {
+        "num": [1.0, 0.0, 1.0],
+        "date": [1.0, 1.0, 0.0],
+    }
+    assert pytest.approx(output.missing_keys, rel=1e-6) == {
+        "num": [0.0, 0.0, 0.0],
+        "date": [0.0, 0.0, 1.0],
+    }
+    assert pytest.approx(output.num_times_extra_keys, rel=1e-6) == {"name": 1.0}
