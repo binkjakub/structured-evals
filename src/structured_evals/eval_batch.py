@@ -69,7 +69,7 @@ class BatchDictEval(EvaluatorBase[list[dict[str, Any]], BatchDictEvalOutput]):
                     eval_pairs.append((pred_item[key], target_item[key]))
 
             if hasattr(evaluator, "evaluate_batch"):
-                valid_results[key] = evaluator.evaluate_batch(eval_pairs)
+                valid_results[key] = evaluator.evaluate_batch(*zip(*eval_pairs))
             else:
                 valid_results[key] = [evaluator.evaluate(*pair) for pair in eval_pairs]
 

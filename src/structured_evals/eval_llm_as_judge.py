@@ -13,18 +13,24 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from structured_evals.base import EvaluatorBase, ItemEvalOutput
 
 DEFAULT_MAX_CONCURRENT_CALLS = 30
+DEFAULT_SYSTEM_PROMPT = "You are a judge that scores the quality of the prediction."
+DEFAULT_PROMPT = """
+Score the quality of the prediction based on Reference Answer.
+Reference Answer: {target}
+Prediction: {pred}
+"""
 
 
 class JudgeScore(BaseModel):
-    score: float = Field(..., description="The score of the prediction")
+    score: float = Field(..., description="The score of the prediction, either 0 or 1")
 
 
 class LlmAsJudge(EvaluatorBase[str, ItemEvalOutput]):
     def __init__(
         self,
         llm: BaseChatModel,
-        prompt: str,
-        system_prompt: str | None = None,
+        prompt: str = DEFAULT_PROMPT,
+        system_prompt: str | None = DEFAULT_SYSTEM_PROMPT,
         max_concurrent_calls: int = DEFAULT_MAX_CONCURRENT_CALLS,
     ) -> None:
         super().__init__(f"LlmAsJudge(llm={llm.name})")

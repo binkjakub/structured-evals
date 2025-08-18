@@ -51,12 +51,12 @@ class ListEval(EvaluatorBase[list[Any], ListEvalOutput]):
         preds_queue = list(range(sim.shape[1]))
         results = {
             "score": 0,
-            "missing": 0,
-            "extra": 0,
+            "num_missing_items": 0,
+            "num_extra_items": 0,
         }
         for i in range(sim.shape[0]):
             if not preds_queue:
-                results["missing"] += 1
+                results["num_missing_items"] += 1
             else:
                 best_pred_idx = np.argmax(sim[i][preds_queue])
                 best_pred_score = sim[i][preds_queue][best_pred_idx]
@@ -64,7 +64,7 @@ class ListEval(EvaluatorBase[list[Any], ListEvalOutput]):
                 preds_queue.pop(best_pred_idx)
 
         results["score"] /= sim.shape[0]
-        results["extra"] += len(preds_queue)
+        results["num_extra_items"] += len(preds_queue)
 
         return ListEvalOutput(**results)
 
@@ -73,3 +73,6 @@ class ListEval(EvaluatorBase[list[Any], ListEvalOutput]):
 
     def check_dtype(self, pred: list[Any], target: list[Any]) -> bool:
         return isinstance(pred, list) and isinstance(target, list)
+
+    def __repr__(self) -> str:
+        return f"ListEval(item_evaluator={self.item_evaluator}, aggregation={self.aggregation})"

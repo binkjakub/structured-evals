@@ -9,7 +9,9 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "langchain>=0.3.27",
+    "langchain-community>=0.3.27",
     "langchain-google-genai>=2.1.9",
+    "langchain-openai>=0.3.30",
     "loguru>=0.7.3",
     "numpy>=2.3.2",
     "python-dotenv>=1.1.1",
