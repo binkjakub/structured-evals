@@ -14,7 +14,7 @@ eval_batch = EvaluationBatch.from_json(
 item_evaluator = infer_structured_evaluator(eval_batch.target[0])
 assert isinstance(item_evaluator, DictEval)
 evaluator = BatchDictEval(
-    item_evaluator=item_evaluator,
+    eval_mapping=item_evaluator.eval_mapping,
     aggregation="average",
     error_strategy="raise",
 )

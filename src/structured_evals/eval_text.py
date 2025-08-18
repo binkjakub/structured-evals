@@ -8,6 +8,14 @@ class EvalTextualMetric(EvaluatorBase[str, ItemEvalOutput]):
         super().__init__(metric_name)
         self.metric_fn = metric_fn
 
+    @property
+    def zero_score(self) -> ItemEvalOutput:
+        return ItemEvalOutput(score=0.0)
+
+    @property
+    def max_score(self) -> ItemEvalOutput:
+        return ItemEvalOutput(score=1.0)
+
     def evaluate(self, pred: str | None, target: str | None) -> ItemEvalOutput:
         if self.is_null(pred) and self.is_null(target):
             return ItemEvalOutput(score=1.0)

@@ -7,6 +7,14 @@ T_date = datetime.datetime | datetime.date | None
 
 
 class NumEval(EvaluatorBase[T_numeric, ItemEvalOutput]):
+    @property
+    def zero_score(self) -> ItemEvalOutput:
+        return ItemEvalOutput(score=0.0)
+
+    @property
+    def max_score(self) -> ItemEvalOutput:
+        return ItemEvalOutput(score=1.0)
+
     # TODO: add support for precision specification
     def evaluate(self, pred: T_numeric, target: T_numeric) -> ItemEvalOutput:
         if not self.check_dtype(pred, target):
@@ -21,6 +29,14 @@ class DateEval(EvaluatorBase[T_date, ItemEvalOutput]):
     def __init__(self, date_fmt: str = "%Y-%m-%d") -> None:
         super().__init__()
         self.date_fmt = date_fmt
+
+    @property
+    def zero_score(self) -> ItemEvalOutput:
+        return ItemEvalOutput(score=0.0)
+
+    @property
+    def max_score(self) -> ItemEvalOutput:
+        return ItemEvalOutput(score=1.0)
 
     def evaluate(self, pred: T_date, target: T_date) -> ItemEvalOutput:
         if self.is_null(pred) and self.is_null(target):

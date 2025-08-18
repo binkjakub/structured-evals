@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Any, Literal
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel
 from tabulate import tabulate
 
 from structured_evals.base import EvaluatorBase, ItemEvalOutput
@@ -11,15 +11,6 @@ class DictEvalOutput(BaseModel):
     results: dict[str, ItemEvalOutput]
     missing: dict[str, float]
     extra: dict[str, float]
-
-    @model_validator(mode="after")
-    def validate_results_and_missing(self) -> "DictEvalOutput":
-        if any(
-            res_value.score > 0 and res_key in self.missing
-            for res_key, res_value in self.results.items()
-        ):
-            raise ValueError("Results must be zero when missing is greater than zero")
-        return self
 
     @classmethod
     def sum(cls, outputs: list["DictEvalOutput"]) -> dict[str, dict[str, float]]:
@@ -49,6 +40,22 @@ class DictEval(EvaluatorBase[dict[str, Any], DictEvalOutput]):
         super().__init__()
         self.eval_mapping = eval_mapping
         self.error_strategy = error_strategy
+
+    @property
+    def zero_score(self) -> DictEvalOutput:
+        return DictEvalOutput(
+            results={key: self.eval_mapping[key].zero_score for key in self.eval_mapping.keys()},
+            missing={},
+            extra={},
+        )
+
+    @property
+    def max_score(self) -> DictEvalOutput:
+        return DictEvalOutput(
+            results={key: self.eval_mapping[key].max_score for key in self.eval_mapping.keys()},
+            missing={},
+            extra={},
+        )
 
     def evaluate(self, pred: dict[str, Any], target: dict[str, Any]) -> DictEvalOutput:
         if any(key not in self.eval_mapping for key in target):

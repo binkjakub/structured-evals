@@ -14,6 +14,14 @@ class EnumEval(EvaluatorBase[T_enum, EnumItemOutput]):
         super().__init__(name)
         self.allowed_values = set(allowed_values)
 
+    @property
+    def zero_score(self) -> EnumItemOutput:
+        return EnumItemOutput(score=0.0, prohibited_value=0)
+
+    @property
+    def max_score(self) -> EnumItemOutput:
+        return EnumItemOutput(score=1.0, prohibited_value=0)
+
     def evaluate(self, pred: T_enum, target: T_enum) -> EnumItemOutput:
         if self.is_null(pred) and self.is_null(target):
             return EnumItemOutput(score=1.0, prohibited_value=0)

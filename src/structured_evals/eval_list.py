@@ -8,8 +8,8 @@ T_list_aggregation = Literal["average", "sum"]
 
 
 class ListEvalOutput(ItemEvalOutput):
-    missing: int
-    extra: int
+    num_missing_items: int
+    num_extra_items: int
 
 
 class ListEval(EvaluatorBase[list[Any], ListEvalOutput]):
@@ -22,15 +22,21 @@ class ListEval(EvaluatorBase[list[Any], ListEvalOutput]):
         self.item_evaluator = item_evaluator
         self.aggregation = aggregation
 
+    @property
+    def zero_score(self) -> ListEvalOutput:
+        return ListEvalOutput(score=0.0, num_missing_items=0, num_extra_items=0)
+
+    @property
+    def max_score(self) -> ListEvalOutput:
+        return ListEvalOutput(score=1.0, num_missing_items=0, num_extra_items=0)
+
     def evaluate(self, pred: list[Any], target: list[Any]) -> ListEvalOutput:
         if self.is_null(pred) and self.is_null(target):
-            return ListEvalOutput(score=1.0, missing=0, extra=0)
-        elif self.is_null(pred) and not self.is_null(target):
-            return ListEvalOutput(score=0.0, missing=len(target), extra=0)
-        elif not self.is_null(pred) and self.is_null(target):
-            return ListEvalOutput(score=0.0, missing=0, extra=len(pred))
+            return self.max_score
+        elif self.is_null(pred) or self.is_null(target):
+            return self.zero_score
         elif not self.check_dtype(pred, target):
-            return ListEvalOutput(score=0.0, missing=0, extra=0)
+            return self.zero_score
 
         # TODO: implement with hungarian algorithm instead of greedy matching
         target_pred_similarity = []
