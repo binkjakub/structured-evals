@@ -6,7 +6,7 @@ from tabulate import tabulate
 from tqdm import tqdm
 
 from structured_evals.base import EvaluatorBase, ItemEvalOutput
-from structured_evals.eval_dict import DictEvalOutput
+from structured_evals.eval_dict import DictEval, DictEvalOutput
 
 
 class BatchDictEvalOutput(BaseModel):
@@ -75,9 +75,10 @@ class BatchDictEval(EvaluatorBase[list[dict[str, Any]], BatchDictEvalOutput]):
         schema_keys = list(self.eval_mapping.keys())
 
         for target_item in target:
-            if any(key not in self.eval_mapping for key in target_item):
+            unspecified_keys = {key for key in target_item if key not in self.eval_mapping}
+            if unspecified_keys:
                 raise ValueError(
-                    "Target dict contains keys not present in eval_mapping, you must provide a target coherent with eval_mapping"
+                    f"Target dict contains keys not present in eval_mapping: {unspecified_keys}"
                 )
 
         valid_results = {}
@@ -149,3 +150,11 @@ class BatchDictEval(EvaluatorBase[list[dict[str, Any]], BatchDictEvalOutput]):
             maxcolwidths=[None, 40],
         )
         return f"DictEval(error_strategy={self.error_strategy})\n{table_str}"
+
+    @classmethod
+    def from_dict_eval(cls, dict_eval: DictEval, verbose: bool) -> "BatchDictEval":
+        return cls(
+            eval_mapping=dict_eval.eval_mapping,
+            error_strategy=dict_eval.error_strategy,
+            verbose=verbose,
+        )

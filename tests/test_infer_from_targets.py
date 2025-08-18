@@ -9,14 +9,14 @@ from structured_evals.eval_primitive import DateEval, NumEval
 from structured_evals.eval_text import EvalTextualMetric
 from structured_evals.infer_from_targets import (
     DEFAULT_LIST_AGGREGATION,
-    infer_structured_evaluator,
+    infer_structured_evaluator_from_predictions,
 )
 
 
 def test_infer_evaluator_for_string() -> None:
     """Test that string data returns EvalTextualMetric evaluator."""
     data = "test string"
-    evaluator = infer_structured_evaluator(data, text_evaluator="ngram")
+    evaluator = infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
     assert isinstance(evaluator, EvalTextualMetric)
     assert evaluator.name == "chrf"
@@ -25,7 +25,7 @@ def test_infer_evaluator_for_string() -> None:
 def test_infer_evaluator_for_integer() -> None:
     """Test that integer data returns NumEval evaluator."""
     data = 42
-    evaluator = infer_structured_evaluator(data, text_evaluator="ngram")
+    evaluator = infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
     assert isinstance(evaluator, NumEval)
 
@@ -33,7 +33,7 @@ def test_infer_evaluator_for_integer() -> None:
 def test_infer_evaluator_for_float() -> None:
     """Test that float data returns NumEval evaluator."""
     data = 3.14
-    evaluator = infer_structured_evaluator(data, text_evaluator="ngram")
+    evaluator = infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
     assert isinstance(evaluator, NumEval)
 
@@ -41,7 +41,7 @@ def test_infer_evaluator_for_float() -> None:
 def test_infer_evaluator_for_datetime() -> None:
     """Test that datetime data returns DateEval evaluator."""
     data = datetime(2021, 1, 1)
-    evaluator = infer_structured_evaluator(data, text_evaluator="ngram")
+    evaluator = infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
     assert isinstance(evaluator, DateEval)
 
@@ -49,7 +49,7 @@ def test_infer_evaluator_for_datetime() -> None:
 def test_infer_evaluator_for_simple_dict() -> None:
     """Test that dict data returns DictEval evaluator with correct mapping."""
     data = {"name": "John", "age": 30}
-    evaluator = infer_structured_evaluator(data, text_evaluator="ngram")
+    evaluator = infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
     assert isinstance(evaluator, DictEval)
     assert "name" in evaluator.eval_mapping
@@ -61,7 +61,7 @@ def test_infer_evaluator_for_simple_dict() -> None:
 def test_infer_evaluator_for_nested_dict() -> None:
     """Test that nested dict creates properly nested DictEval evaluators."""
     data = {"user": {"name": "John", "age": 30}, "created_at": datetime(2021, 1, 1)}
-    evaluator = infer_structured_evaluator(data, text_evaluator="ngram")
+    evaluator = infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
     assert isinstance(evaluator, DictEval)
     assert isinstance(evaluator.eval_mapping["user"], DictEval)
@@ -76,7 +76,7 @@ def test_infer_evaluator_for_nested_dict() -> None:
 def test_infer_evaluator_for_list_of_strings() -> None:
     """Test that list of strings returns ListEval with string item evaluator."""
     data = ["apple", "banana", "cherry"]
-    evaluator = infer_structured_evaluator(data, text_evaluator="ngram")
+    evaluator = infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
     assert isinstance(evaluator, ListEval)
     assert isinstance(evaluator.item_evaluator, EvalTextualMetric)
@@ -86,7 +86,7 @@ def test_infer_evaluator_for_list_of_strings() -> None:
 def test_infer_evaluator_for_list_of_numbers() -> None:
     """Test that list of numbers returns ListEval with NumEval item evaluator."""
     data = [1, 2, 3]
-    evaluator = infer_structured_evaluator(data, text_evaluator="ngram")
+    evaluator = infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
     assert isinstance(evaluator, ListEval)
     assert isinstance(evaluator.item_evaluator, NumEval)
@@ -95,7 +95,7 @@ def test_infer_evaluator_for_list_of_numbers() -> None:
 def test_infer_evaluator_for_list_of_dicts() -> None:
     """Test that list of dicts returns ListEval with DictEval item evaluator."""
     data = [{"name": "John", "age": 30}, {"name": "Jane", "age": 25}]
-    evaluator = infer_structured_evaluator(data, text_evaluator="ngram")
+    evaluator = infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
     assert isinstance(evaluator, ListEval)
     assert isinstance(evaluator.item_evaluator, DictEval)
@@ -119,7 +119,7 @@ def test_infer_evaluator_for_complex_nested_structure() -> None:
         "count": 1,
         "description": "User list",
     }
-    evaluator = infer_structured_evaluator(data, text_evaluator="ngram")
+    evaluator = infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
     assert isinstance(evaluator, DictEval)
 
@@ -149,7 +149,7 @@ def test_infer_evaluator_for_empty_list_raises_error() -> None:
     data: list[Any] = []
 
     with pytest.raises(AssertionError, match="List must not be empty to infer evaluator"):
-        infer_structured_evaluator(data, text_evaluator="ngram")
+        infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
 
 def test_infer_evaluator_for_empty_dict() -> None:
@@ -157,7 +157,7 @@ def test_infer_evaluator_for_empty_dict() -> None:
     data: dict[str, Any] = {}
 
     with pytest.raises(AssertionError, match="Dict must not be empty to infer evaluator"):
-        infer_structured_evaluator(data, text_evaluator="ngram")
+        infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
 
 def test_infer_evaluator_for_unsupported_type() -> None:
@@ -167,7 +167,7 @@ def test_infer_evaluator_for_unsupported_type() -> None:
     with pytest.raises(
         ValueError, match="Unsupported type encountered during structured evaluator inference"
     ):
-        infer_structured_evaluator(data, text_evaluator="ngram")
+        infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
 
 def test_infer_evaluator_for_none_raises_error() -> None:
@@ -177,13 +177,13 @@ def test_infer_evaluator_for_none_raises_error() -> None:
     with pytest.raises(
         ValueError, match="Unsupported type encountered during structured evaluator inference"
     ):
-        infer_structured_evaluator(data, text_evaluator="ngram")
+        infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
 
 def test_infer_evaluator_for_boolean_returns_num_eval() -> None:
     """Test that boolean type returns NumEval (since bool is subclass of int)."""
     data = True
-    evaluator = infer_structured_evaluator(data, text_evaluator="ngram")
+    evaluator = infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
     assert isinstance(evaluator, NumEval)
 
@@ -198,7 +198,7 @@ def test_infer_evaluator_dict_with_mixed_value_types() -> None:
         "list_field": ["a", "b"],
         "dict_field": {"nested": "value"},
     }
-    evaluator = infer_structured_evaluator(data, text_evaluator="ngram")
+    evaluator = infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
     assert isinstance(evaluator, DictEval)
     assert isinstance(evaluator.eval_mapping["string_field"], EvalTextualMetric)
@@ -212,7 +212,7 @@ def test_infer_evaluator_dict_with_mixed_value_types() -> None:
 def test_infer_evaluator_preserves_list_aggregation_default() -> None:
     """Test that ListEval uses default aggregation setting."""
     data = [1, 2, 3]
-    evaluator = infer_structured_evaluator(data, text_evaluator="ngram")
+    evaluator = infer_structured_evaluator_from_predictions(data, text_evaluator="ngram")
 
     assert isinstance(evaluator, ListEval)
     assert evaluator.aggregation == DEFAULT_LIST_AGGREGATION
