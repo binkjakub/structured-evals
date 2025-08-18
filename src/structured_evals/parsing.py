@@ -1,0 +1,30 @@
+import re
+from datetime import datetime
+from typing import Any
+
+import yaml
+
+yaml_pattern: re.Pattern = re.compile(r"```(?:ya?ml)?(?P<yaml>[^`]*)", re.MULTILINE | re.DOTALL)
+
+
+def parse_yaml(text: str) -> dict[str, Any]:
+    """YAML parser taken from langchain.
+    Credit: https://github.com/langchain-ai/langchain.
+    """
+    match = re.search(yaml_pattern, text.strip())
+    if match:
+        yaml_str = match.group("yaml")
+    else:
+        yaml_str = text
+
+    res = yaml.safe_load(yaml_str)
+    if res is None:
+        return {}
+
+    for key, value in res.items():
+        try:
+            res[key] = datetime.fromisoformat(value).date()
+        except (ValueError, TypeError):
+            pass
+
+    return res

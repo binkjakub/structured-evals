@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: end-of-file-fixer
         name: End-of-file fixer
@@ -17,11 +17,11 @@ repos:
 
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.10
+    rev: v0.12.9
     hooks:
       - id: ruff
         name: Ruff Linter
-        args: [--fix, --exit-non-zero-on-fix, sevals, tests, examples]
+        args: [--fix, --exit-non-zero-on-fix, src, tests, examples]
       - id: ruff-format
         name: Ruff Formatter
-        args: [sevals, tests, examples]
+        args: [src, tests, examples]
