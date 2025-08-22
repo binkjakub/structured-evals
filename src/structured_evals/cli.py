@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated, Literal, Optional
 
 import typer
 import yaml
@@ -48,7 +48,7 @@ def eval_from_schema(
         str, typer.Option("--target-key", help="Key for targets in JSON")
     ] = "gold",
     text_evaluator: Annotated[
-        str, typer.Option("--text-evaluator", help="Text evaluator to use")
+        Literal["ngram", "llm"], typer.Option("--text-evaluator", help="Text evaluator to use")
     ] = "llm",
     verbose: Annotated[bool, typer.Option("--verbose", "-v", help="Verbose output")] = False,
 ) -> None:
@@ -103,7 +103,7 @@ def eval_from_predictions(
         str, typer.Option("--target-key", help="Key for targets in JSON")
     ] = "gold",
     text_evaluator: Annotated[
-        str, typer.Option("--text-evaluator", help="Text evaluator to use")
+        Literal["ngram", "llm"], typer.Option("--text-evaluator", help="Text evaluator to use")
     ] = "llm",
     verbose: Annotated[bool, typer.Option("--verbose", "-v", help="Verbose output")] = False,
 ) -> None:
