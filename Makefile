@@ -21,5 +21,11 @@ test:
 coverage:
 	uv run coverage report --show-missing
 
+coverage-xml:
+	uv run coverage xml
+
+coverage-html:
+	uv run coverage html
+
 build:
 	uv build
