@@ -33,7 +33,15 @@ jobs:
       - name: Build package with uv
         run: uv build
 
-      - name: Check built package
+      - name: List built package (Unix)
+        if: runner.os != 'Windows'
+        run: ls -la dist/
+
+      - name: List built package (Windows)
+        if: runner.os == 'Windows'
+        run: dir dist\
+
+      - name: Install and test package
         run: |
           ls -la dist/
           uv run python -m pip install dist/*.whl
