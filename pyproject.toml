@@ -57,6 +57,7 @@ check_untyped_defs = true
 source_pkgs = ["structured_evals", "tests"]
 branch = true
 parallel = false
+relative_files = true
 omit = []
 
 [tool.coverage.paths]
